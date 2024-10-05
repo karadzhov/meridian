@@ -1,0 +1,55 @@
+name: Update Vector Tiles
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight UTC
+  workflow_dispatch: # Allows manual triggers
+
+jobs:
+  update-vector-tiles:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget osmium-tool gcc g++ make libsqlite3-dev zlib1g-dev
+          wget https://github.com/protomaps/go-pmtiles/releases/download/v1.22.0/go-pmtiles_1.22.0_Linux_x86_64.tar.gz
+          tar -xzf go-pmtiles_1.22.0_Linux_x86_64.tar.gz
+          sudo mv pmtiles /usr/local/bin/
+          wget -O tippecanoe-2.64.0.tar.gz https://github.com/felt/tippecanoe/archive/refs/tags/2.64.0.tar.gz
+          tar -xzf tippecanoe-2.64.0.tar.gz
+          cd tippecanoe-2.64.0
+          sudo make -j
+          sudo make install
+
+      - name: Download Bulgarian OSM data
+        run: |
+          wget -O bulgaria-latest.osm.pbf https://download.geofabrik.de/europe/bulgaria-latest.osm.pbf
+      
+      - name: Convert OSM to GeoJSON (highways filter example)
+        run: |
+          osmium tags-filter bulgaria-latest.osm.pbf w/highway -o highways.osm.pbf
+          osmium export highways.osm.pbf -o highways.geojson
+
+      - name: Convert GeoJSON to PMTiles
+        run: |
+          tippecanoe -zg -o bulgaria-highways.pmtiles --drop-densest-as-needed highways.geojson
+
+      - name: Move PMTiles to static folder
+        run: |
+          mkdir -p static/tiles
+          mv bulgaria-highways.pmtiles static/tiles/
+
+      - name: Commit and push the PMTiles file
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add static/tiles/bulgaria-highways.pmtiles
+          git commit -m "Daily update: Add latest Bulgaria PMTiles"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
