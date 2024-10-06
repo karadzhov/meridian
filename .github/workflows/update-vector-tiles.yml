@@ -44,11 +44,21 @@ jobs:
           mkdir -p static/tiles
           mv bulgaria-highways.pmtiles static/tiles/
 
-      - name: Commit and push the PMTiles file
+      - name: Check if PMTiles has changed
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add static/tiles/bulgaria-highways.pmtiles
+          if git diff --cached --quiet; then
+            echo "No changes detected in PMTiles. Skipping commit."
+            exit 0
+          else
+            echo "Changes detected. Committing new PMTiles."
+          fi
+  
+      - name: Commit and push if changes exist
+        if: success()
+        run: |
           git commit -m "Daily update: Add latest Bulgaria PMTiles"
           git push
         env:
