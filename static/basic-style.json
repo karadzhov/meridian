@@ -1,16 +1,16 @@
 {
     "version": 8,
     "sources": {
-      "bulgaria-highways": {
+      "bulgaria": {
         "type": "vector",
-        "url": "https://www.karadzhov.com/meridian/tiles/bulgaria-highways.pmtiles"
+        "url": "https://www.karadzhov.com/meridian/tiles/bulgaria-latest.pmtiles"
       }
     },
     "layers": [
       {
         "id": "highways",
         "type": "line",
-        "source": "bulgaria-highways",
+        "source": "bulgaria",
         "source-layer": "highways",
         "paint": { "line-color": "#888", "line-width": 2 }
       }
