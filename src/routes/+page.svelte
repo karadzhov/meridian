@@ -1,2 +1,11 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+    import {MapLibre, VectorTileSource, LineLayer} from 'svelte-maplibre';
+</script>
+
+<MapLibre
+    style="https://www.karadzhov.com/meridian/basic-style.json"
+    standardControls
+    center={[25.4858, 42.7339]}
+    zoom={6}
+>
+</MapLibre>

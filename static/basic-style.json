@@ -1,0 +1,19 @@
+{
+    "version": 8,
+    "sources": {
+      "bulgaria-highways": {
+        "type": "vector",
+        "url": "https://www.karadzhov.com/meridian/tiles/bulgaria-highways.pmtiles"
+      }
+    },
+    "layers": [
+      {
+        "id": "highways",
+        "type": "line",
+        "source": "bulgaria-highways",
+        "source-layer": "highways",
+        "paint": { "line-color": "#888", "line-width": 2 }
+      }
+    ]
+  }
+  
