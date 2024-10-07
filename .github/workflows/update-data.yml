@@ -29,13 +29,25 @@ jobs:
           mkdir -p data
           wget -O data/bulgaria-latest.osm.pbf https://download.geofabrik.de/europe/bulgaria-latest.osm.pbf
       
-      - name: Obtain municipality boundaries (admin_level=5)
+      - name: Obtain administrative boundaries 
         run: |
-          osmium tags-filter data/bulgaria-latest.osm.pbf r/boundary=administrative r/admin_level=5 -o data/bulgaria-admin_level_5.osm.pbf
+          osmium tags-filter -o data/bulgaria-boundary_administrative.osm.pbf data/bulgaria-latest.osm.pbf r/boundary=administrative
+
+      - name: Obtain admin level 5
+        run: |
+          osmium tags-filter -o data/bulgaria-admin_level_5.osm.pbf data/bulgaria-boundary_administrative.osm.pbf r/admin_level=5
+
+      - name: Obtain Svishtov
+        run: |
+          osmium tags-filter -o data/bulgaria-svishtov.osm.pbf data/bulgaria-admin_level_5.osm.pbf r/name:en=Svishtov
+
+      - name: Obtain municipality
+        run: |
+          osmium tags-filter -o data/bulgaria-svishtov-municipality.osm.pbf data/bulgaria-svishtov.osm.pbf w/name:prefix=Община --overwrite
 
       - name: Convert municipality boundaries to GeoJSON
         run: |
-          osmium export data/bulgaria-admin_level_5.osm.pbf -o data/bulgaria-admin_level_5.geojson
+          osmium export data/bulgaria-svishtov-municipality.osm.pbf -o data/bulgaria-svishtov-municipality.geojson --overwrite
 
       - name: Convert GeoJSON to .poly files
         run: |
